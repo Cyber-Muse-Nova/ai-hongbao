@@ -250,6 +250,14 @@
         }
 
         .modal {
+          padding: 25px 20px;
+          color: #555;
+          line-height: 1.6;
+
+          max-height: 55vh;      /* 关键：限制高度 */
+          overflow-y: auto;      /* 关键：内容可滚动 */
+          -webkit-overflow-scrolling: touch;
+       }
             background: #fff;
             width: 80%;
             max-width: 320px;
