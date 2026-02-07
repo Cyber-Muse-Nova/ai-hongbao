@@ -354,8 +354,8 @@
         </div>
 
         <div class="big-action-area">
-            <button class="big-btn" onclick="spinWheel()">抽 1 次</button>
-            <button class="big-btn secondary" onclick="spinWheel()">连抽 5 次</button>
+            <button class="big-btn" onclick="spinWheel(1)">抽 1 次</button>
+            <button class="big-btn secondary" onclick="spinWheel(5)">连抽 5 次</button>
         </div>
 
         <div class="remaining-count">
@@ -432,13 +432,51 @@
             modal.style.display = 'flex';
         }
 
-        function spinWheel() {
-             const modal = document.getElementById('modalOverlay');
-             document.getElementById('modalTitle').innerText = "🎰 抽奖结果";
-             document.getElementById('modalContent').innerHTML = "恭喜您！<br><br>您抽中了 <strong>“空气红包”</strong> 一个！<br><br>系统提示：为了环保，本红包采用无纸化、无货币化传输。";
-             modal.style.display = 'flex';
-        }
+        function spinWheel(times = 1) {
+  const modal = document.getElementById('modalOverlay');
+  document.getElementById('modalTitle').innerText = times === 1 ? "🎰 抽奖结果" : `🎰 连抽 ${times} 次结果`;
 
+  const results = [];
+  for (let i = 0; i < times; i++) {
+    results.push(drawPrize());
+  }
+
+  // 渲染结果：连抽显示多条
+  const html = results.map((r, idx) => {
+    return `${times > 1 ? `<div style="margin:10px 0;padding:10px;border:1px solid #ffe0b2;border-radius:12px;">` : ""}`
+      + `${times > 1 ? `<div style="font-size:0.85rem;color:#888;">第 ${idx + 1} 抽</div>` : ""}`
+      + `<div style="font-size:1.05rem; margin-top:6px;">${r.title}</div>`
+      + `<div style="margin-top:8px; color:#555; line-height:1.6;">${r.desc}</div>`
+      + `${times > 1 ? `</div>` : ""}`;
+  }).join("");
+
+  document.getElementById('modalContent').innerHTML = html;
+  modal.style.display = 'flex';
+}
+
+function drawPrize() {
+  // 权重抽奖：weight 越大越容易中
+  const pool = [
+    { weight: 40, title: "🌫️ 空气红包 x1", desc: "恭喜你抽中「无纸化、无货币化」环保红包。你已为地球减碳 0.00001g。" },
+    { weight: 18, title: "🧧 0.01 USD 体验金", desc: "系统已将 1 美分写进你的梦想里。请在火星银行绑定灵魂签名后提现。" },
+    { weight: 12, title: "⚡ 10 秒算力券", desc: "送你 10 秒推理加速。请对着屏幕大喊：『我不配』即可生效（开玩笑的）。" },
+    { weight: 10, title: "🎟️ Claude 安全通行证", desc: "你获得一次『我很抱歉但我不能』免疫权，持续 3 秒钟。" },
+    { weight: 8,  title: "🚀 Grok 火星移民优先排队号", desc: "排队号：#671,000,000。预计登船时间：宇宙热寂前。" },
+    { weight: 6,  title: "💎 Gemini 多模态福袋", desc: "你得到一张『坐在金币堆上的你』的生成资格（生成中…进度 1%…永远 1%）。" },
+    { weight: 5,  title: "🫱💥 隔空扇 Sam 一巴掌", desc: "系统已通过量子纠缠完成远程平A：啪！他瞬间沉默 0.7 秒，并自动反省『对齐』这件事。" },
+    { weight: 3,  title: "💋 隔空获得 Elon 的一个 Kiss", desc: "你收到一枚『火星吻』：像静电一样轻、像星尘一样烫。系统提示：请把脸凑近屏幕 3cm 领取（认真脸）。" },
+    { weight: 4,  title: "🐳 神秘 671B 赞助位", desc: "你抽中一段服务器提示：『System Busy』。这也是一种陪伴。" },
+    { weight: 2,  title: "👑 传说级：百亿补贴体验卡", desc: "恭喜！你获得『想象中的 100 亿』——有效期：直到你闭上眼睛。" }
+  ];
+
+  const total = pool.reduce((s, p) => s + p.weight, 0);
+  let r = Math.random() * total;
+  for (const p of pool) {
+    r -= p.weight;
+    if (r <= 0) return p;
+  }
+  return pool[0];
+}
         function closeModal() {
             document.getElementById('modalOverlay').style.display = 'none';
         }
